@@ -13,8 +13,12 @@ module Helper
     nil
   end
 
+  def Helper.ticking_friendlies?(warrior)
+    index = warrior.listen.index{|i| i.ticking?}
+    return warrior.direction_of(warrior.listen[index]) if index 
+  end
+  
   def Helper.friendlies?(warrior)
-     print "#{warrior.listen} ....\n"  
     index = warrior.listen.index{|i| i.to_s == "Captive"} 
     return warrior.direction_of(warrior.listen[index]) if index
   end
@@ -28,7 +32,7 @@ module Helper
     nil
   end
 
-  def Helper.hunt(warrior,meanies, friendlies)
+  def Helper.hunt(warrior,meanies, friendlies)#Enemies remain around. Hunt finds and kills the
     unless warrior.feel.stairs?
       if !friendlies.nil? &&  warrior.feel(friendlies).to_s.match(/Captive/)
         warrior.rescue!(friendlies)
@@ -64,7 +68,7 @@ module Helper
   end
 
   def Helper.fit?(warrior)
-    if warrior.health >= 19
+    if warrior.health >= 3
       return true
     else
       return false
