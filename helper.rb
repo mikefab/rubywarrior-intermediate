@@ -4,7 +4,6 @@ module Helper
   HENEMIES  = {"Wizard" => 1, "Archer" => 1, "Thick Sludge" => 1, "Sludge" => 1}
   DIRECTIONS = [:forward, :backward,  :left, :right]
 
-
   def Helper.meanies?(warrior) #reports if there are any evil entities in the room
     ENEMIES.each do |e|
       index = warrior.listen.index{|i| i.to_s == e} 

@@ -2,18 +2,20 @@ class Player
 require "Helper"
 
   def play_turn(warrior)
+    @track_bound ||= {}
     @movements ||= []
     @health ||=  warrior.health
     diff      =  @health - warrior.health 
     fit       =  Helper.fit?(warrior)
-    crowded = Helper.crowded?(warrior)
+    crowded = Helper.crowded?(warrior)#indicates if an enemy is next to warrior from any side
     meanies = Helper.meanies?(warrior)
     friendlies = Helper.friendlies?(warrior) #return direction of a friendly
     ticking_friendlies = Helper.ticking_friendlies?(warrior)
     hugged    = Helper.hugged?(warrior)
     sanctuary = Helper.sanctuary?(warrior, @movements)
     goal      = warrior.direction_of_stairs
-    
+   
+
     if warrior.feel.stairs? 
       if meanies.nil? && friendlies.nil?
        warrior.walk!
@@ -31,8 +33,9 @@ require "Helper"
             end
           elsif crowded
             if warrior.feel(:forward).enemy?
-              if diff >= 100  then
-                warrior.bind!(crowded)
+              if diff >= 1  then
+                print "BBBB\n"
+                warrior.bind!(:left)
               else
                 warrior.attack!(:forward)
               end
