@@ -4,6 +4,10 @@ module Helper
   HENEMIES  = {"Wizard" => 1, "Archer" => 1, "Thick Sludge" => 1, "Sludge" => 1}
   DIRECTIONS = [:forward, :backward,  :left, :right]
 
+	def Helper.do_walk(warrior, direction = :forward)
+		warrior.walk!(direction)
+	end
+
   def Helper.meanies?(warrior) #reports if there are any evil entities in the room
     ENEMIES.each do |e|
       index = warrior.listen.index{|i| i.to_s == e} 
@@ -25,20 +29,33 @@ module Helper
   def Helper.hugged?(warrior)
     DIRECTIONS.each do |d|
       if warrior.feel(d).to_s.match("Captive")
+				print "FOUND one in #{d}\n"
         return d
       end
     end
     nil
   end
 
-  def Helper.hunt(warrior,meanies, friendlies)#Enemies remain around. Hunt finds and kills the
+  def Helper.hunt(warrior,meanies, friendlies, crowded, hugged, sanctuary)#Enemies remain around. Hunt finds and kills the
+		print "#{warrior.health} HHH\n"
     unless warrior.feel.stairs?
       if !friendlies.nil? &&  warrior.feel(friendlies).to_s.match(/Captive/)
         warrior.rescue!(friendlies)
       else
-        warrior.walk!(meanies)
-      end
-    else
+        unless Helper.fit?(warrior)
+					warrior.rest!
+					#warrior.walk!(sanctuary)
+				else
+					if crowded
+						warrior.attack!(crowded)
+					elsif hugged
+						warrior.rescue!(hugged)
+					else
+						warrior.walk!(meanies)
+  				end
+				end
+			end
+		else
       warrior.walk!(delay(warrior))
     end
   end
@@ -59,15 +76,15 @@ module Helper
     nil
   end
 
-  def Helper.sanctuary?(warrior, movements)
+  def Helper.sanctuary?(warrior, movementsl)	#Sancuary is where no one can harm warrior
     DIRECTIONS.each do |d|
-      return d if warrior.feel(d).to_s.match(/nothing/) #&& d != movements.last
+      return d if warrior.feel(d).to_s.match(/nothing/) && d !=  warrior.direction_of_stairs #&& d != movements.last
     end
     false 
   end
 
   def Helper.fit?(warrior)
-    if warrior.health >= 3
+    if warrior.health >= 4
       return true
     else
       return false
@@ -77,6 +94,12 @@ module Helper
   def Helper.siege?(warrior,health)
     (warrior.health<health) ? true : false
   end
+
+	def Helper.should_detonate?(warrior)
+		print "#{warrior.look[0].to_s} #{warrior.look[1]}\n"
+		return 1 if HENEMIES[warrior.look[0].to_s] and HENEMIES[warrior.look[1].to_s]
+		nil
+	end
 
   def Helper.shoot?(warrior)
 #    warrior.look.size.times do |t|
